@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Примеры. Перемещение карты.</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+    <!--
+        Подключаем API карт 2.x
+        Параметры:
+          - load=package.full - полная сборка;
+          - lang=ru-RU - язык русский.
+    -->
+   <script src="https://api-maps.yandex.ru/2.0/?load=package.full&lang=en-US"
+            type="text/javascript"></script>
+    <!--script type="text/javascript" charset="utf-8" src="cordova.js"></script -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var devices = {};
+        var socket = io.connect(location.href);
+        socket.on('connect', function(client){
+                console.log('connect');
+        });
+         socket.on('init_devices', function (data) {
+                console.log(data);
+                if (typeof data.devices == "string") {
+                    devices[data.devices]={active:true, loading:false};
+                }
+                else {
+                data.devices.forEach(function(e){
+                    devices[e]={active:true, loading:false};
+                });
+                }
+         });
+         socket.on('get', function (data) {
+             onSuccess({coords:data});
+         });
+         
+         socket.on('disconnect', function(){
+                console.log('disconnect');
+        }); 
+    </script>
+    
+    <!--
+        Основная библиотека JQuery.
+        Яндекс предоставляет хостинг JavaScript-библиотек:
+    -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+    <script type="text/javascript">
+        // Как только будет загружен API и готов DOM, выполняем инициализацию
+        ymaps.ready(init);
+    
+        var myMap = null;    
+        // Инициализация и уничтожение карты при нажатии на кнопку.
+        function init () {
+            myMap = new ymaps.Map('map', {
+                    center: [55.753, 37.609], // Москва
+                    zoom: 12
+                });
+                
+             myMap.controls
+                .add('zoomControl')
+                .add('typeSelector')
+                .add('mapTools')
+                .add('searchControl');
+        }
+        
+        
+    // Wait for Cordova to load
+    //
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    var watchID = null;
+
+    // Cordova is ready
+    //
+    function onDeviceReady() {
+        // Throw an error if no update is received every 30 seconds
+        var options = { timeout: 300 };
+        watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);
+    }
+
+    var old_latitude = 0;
+    var old_longitude = 0;
+
+    // onSuccess Geolocation
+    //
+    function onSuccess(position) {
+        var element = document.getElementById('geolocation');
+  //      element.innerHTML = 'Latitude: '  + position.coords.latitude      + '<br />' +
+    //                        'Longitude: ' + position.coords.longitude     + '<br />' +
+      //                      '<hr />' ;//     + element.innerHTML;
+
+        
+        if (old_latitude != position.coords.latitude || old_longitude != position.coords.longitude) {
+            myMap.panTo([position.coords.latitude,position.coords.longitude], {
+                                    flying: false,
+                                    duration: 100
+                                });
+            old_latitude = position.coords.latitude;
+            old_longitude = position.coords.longitude;
+            
+        }
+    }
+
+    // onError Callback receives a PositionError object
+    //
+    function onError(error) {
+        alert('code: '    + error.code    + '\n' +
+              'message: ' + error.message + '\n');
+    }        
+
+</script>
+        
+</head>
+<body>
+<h2>Перемещение карты</h2>
+<div id="map" style="width: 600px; height: 300px">
+    <div id="center" style="width:10px; height:10px; background-color:red; position:relative; z-index:1000; top:145px; left:295px">
+</div>
+</body>
