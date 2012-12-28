@@ -15,30 +15,26 @@
             type="text/javascript"></script>
     <!--script type="text/javascript" charset="utf-8" src="cordova.js"></script -->
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-        var devices = {};
-        var socket = io.connect(location.href);
-        socket.on('connect', function(client){
-                console.log('connect');
-        });
-         socket.on('init_devices', function (data) {
-                console.log(data);
-                if (typeof data.devices == "string") {
-                    devices[data.devices]={active:true, loading:false};
-                }
-                else {
-                data.devices.forEach(function(e){
-                    devices[e]={active:true, loading:false};
-                });
-                }
-         });
+    <script src="extStorage.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        var extStoragesList = null;
+        function onnotify(e) {
+            onSuccess({coords:e.detail});
+        }
+        function init_devices(extStorages) {
+            extStoragesList = extStorages;
+            extStoragesList.gps.onnotify(onnotify);
+        }
+        navigator.getExternalStorages('*', init_devices, null);
+    </script>
+
+<script>
+    /*
          socket.on('get', function (data) {
              onSuccess({coords:data});
          });
          
-         socket.on('disconnect', function(){
-                console.log('disconnect');
-        }); 
+   */
     </script>
     
     <!--
@@ -68,7 +64,7 @@
         
     // Wait for Cordova to load
     //
-    document.addEventListener("deviceready", onDeviceReady, false);
+/*    document.addEventListener("deviceready", onDeviceReady, false);
 
     var watchID = null;
 
@@ -79,7 +75,7 @@
         var options = { timeout: 300 };
         watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);
     }
-
+*/
     var old_latitude = 0;
     var old_longitude = 0;
 
@@ -105,12 +101,16 @@
 
     // onError Callback receives a PositionError object
     //
-    function onError(error) {
-        alert('code: '    + error.code    + '\n' +
-              'message: ' + error.message + '\n');
-    }        
+//    function onError(error) {
+  //      alert('code: '    + error.code    + '\n' +
+    //          'message: ' + error.message + '\n');
+    //}        
 
 </script>
+        
+        
+        
+        
         
 </head>
 <body>
