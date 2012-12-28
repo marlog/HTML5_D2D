@@ -42,8 +42,10 @@ var client_socket = null;
 var net = io.of('/' + argv.id);
 net.on('connection', function (socket) {
   socket.on('send', function (p1, fn) {
-        console.log('INPUT DATA2',arguments)
-        client_socket.emit('get',arguments['0'])
+        console.log('INPUT DATA2',arguments);
+        var arg = arguments['0'];
+        
+        client_socket.emit('get', {id: arg.id, key: arg.key, data: arg.data.data})
   });
 });
 
@@ -59,7 +61,7 @@ io.sockets.on('connection', function (socket) {
             }
             else {
                 console.log('Emit',conn,data)
-                devices[data.device].conn.emit('send',{key: data.key, data:data.data});
+                devices[data.device].conn.emit('send',{id: argv.id, key: data.key, data:data});
             }
         }
         else {

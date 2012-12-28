@@ -44,7 +44,7 @@ if (!navigator.getExternalStorages) {
         });
         this.$system.on('get', function(data) {
             console.log(data)
-            document.dispatchEvent(new CustomEvent('notify',{detail:data}))
+            document.dispatchEvent(new CustomEvent('notify',{detail:data.data}))
         });
         
     }
